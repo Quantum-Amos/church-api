@@ -17,13 +17,13 @@ async def login(credential: LoginSchemaIn, db: Session = Depends(get_db_session)
     if val_user is False:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with email {credential.email} not found",
+            detail=f"Invalid credentials",
         )
     user = UserMapper.get_by_email(credential.email, db)
     if AuthService.verify_password(credential.password, user.password) is False:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect password",
+            detail="Invalid credentials",
         )
     return AuthService.get_access_token(user)
 

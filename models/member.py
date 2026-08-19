@@ -39,6 +39,6 @@ class MemberMapper(Base):
 
     @classmethod
     def create_from_file(cls, session: Session, data: list):
-        members = session.execute(insert(cls), data).all()
+        members = session.execute(insert(cls), data)
         session.commit()
-        return members
+        return True

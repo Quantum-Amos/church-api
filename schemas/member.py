@@ -8,7 +8,7 @@ class MemberSchemaIn(BaseModel):
     picture: Optional[str]
     fullname: Optional[str]
     phone: Optional[str]
-    email: Optional[EmailStr]
+    email: Optional[str] = None
     dob: Optional[date]
     occupation: Optional[str]
     emergency_contact_name: Optional[str]

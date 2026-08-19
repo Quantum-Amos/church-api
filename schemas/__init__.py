@@ -8,6 +8,7 @@ from schemas.contribution import (ContributionSchemaIn, ContributionSchemaOut,
                                   ContributionSchemaUpdate,
                                   ContributionTypeSchemaIn,
                                   ContributionTypeSchemaOut,
-                                  ContributionTypeSchemaUpdate)
+                                  ContributionTypeSchemaUpdate, OfferingTypeSchemaIn,
+                                  OfferingTypeSchemaOut)
 from schemas.department import (DepartmentSchemaIn, DepartmentSchemaOut,
                                 DepartmentSchemaUpdate)

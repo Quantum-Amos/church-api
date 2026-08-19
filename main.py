@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from controllers import (auth_router, contribution_router, department_router,
-                         member_router, user_router)
+                         member_router, user_router, offering_type_router)
 from core import set_default_data
 
 
@@ -21,6 +21,7 @@ app.include_router(member_router)
 app.include_router(user_router)
 app.include_router(contribution_router)
 app.include_router(department_router)
+app.include_router(offering_type_router)
 
 app.add_middleware(
     CORSMiddleware,

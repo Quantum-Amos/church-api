@@ -1,6 +1,6 @@
 import os
 from datetime import date
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
 from fastapi import (APIRouter, Depends, Form, HTTPException, Security,
@@ -37,7 +37,7 @@ async def post(
         picture: UploadFile | None = None,
         fullname: str = Form(None),
         phone: str = Form(None),
-        email: EmailStr = Form(None),
+        email: str = Form(None),
         dob: date = Form(None),
         occupation: str = Form(None),
         emergency_contact_name: str = Form(None),
@@ -72,7 +72,7 @@ async def update(
         picture: UploadFile | None = None,
         fullname: str = Form(None),
         phone: str = Form(None),
-        email: EmailStr = Form(None),
+        email: str = Form(None),
         dob: date = Form(None),
         occupation: str = Form(None),
         emergency_contact_name: str = Form(None),
@@ -124,7 +124,9 @@ async def upload_file(file: UploadFile, department_id: int, session: Session = D
     val_file = validate_excel_file(file.filename)
     if val_file is False:
         raise HTTPException(status_code=404, detail="Only excel files are allowed")
-    df = pd.read_excel(file.file)
+    df = pd.read_excel(file.file.read())
+    df.dropna(how='all', inplace=True)
+    df.dropna(axis=1, how='all', inplace=True)
     data = df.to_dict(orient='records')
     for member in data:
         member.update({"department_id": department_id})

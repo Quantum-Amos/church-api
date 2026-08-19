@@ -41,7 +41,7 @@ async def update_type(data: ContributionTypeSchemaUpdate, session: Session = Dep
 
 @contribution_router.delete("/types/{id}", dependencies=[Security(IsAuthenticated())])
 async def delete_type(id: int, session: Session = Depends(get_db_session)):
-    NotFound(session, {ContributionTypeMapper: id}).__call__()
+    NotFound(session, {ContributionTypeMapper: [id]}).__call__()
     return ContributionTypeMapper.delete(session, id)
 
 
@@ -57,14 +57,14 @@ async def get(id: int, session: Session = Depends(get_db_session)):
     return ContributionMapper.get_by_id(session, id)
 
 
-@contribution_router.get("/members/{member_id}", response_model=List[ContributionSchemaOut], dependencies=[Security(IsAuthenticated())])
-async def get_user_(member_id: int, session: Session = Depends(get_db_session)):
-    return ContributionMapper.get_by_user_id(session, member_id)
+@contribution_router.get("/type/{type_id}", response_model=List[ContributionSchemaOut], dependencies=[Security(IsAuthenticated())])
+async def get_contribution_by_type(type_id: int, session: Session = Depends(get_db_session)):
+    return ContributionMapper.get_by_type_id(session, type_id)
 
 
 @contribution_router.get("/reports/{year}", dependencies=[Security(IsAuthenticated())])
-async def get_by_year(year: str, type_id: int, session: Session = Depends(get_db_session)):
-    return ContributionMapper.get_by_year(session, year, type_id)
+async def get_by_year(year: str, type_id: int, purpose: str = None, session: Session = Depends(get_db_session)):
+    return ContributionMapper.get_by_year(session, year, type_id, purpose)
 
 
 @contribution_router.post("", response_model=ContributionSchemaOut, dependencies=[Security(IsAuthenticated())])
@@ -74,12 +74,13 @@ async def post(
         session: Session = Depends(get_db_session)
 ):
     model_data = []
-    NotFound(session, {UserMapper: [user.get('user_id')], MemberMapper: [data.member_id]}).__call__()
+    NotFound(session, {UserMapper: [user.get('user_id')]}).__call__()
     for date in data.date:
         model_data.append({
             "amount": data.amount,
             "date": date,
             "type_id": data.type_id,
+            "purpose": data.purpose,
             "member_id": data.member_id,
             "user_id": user.get('user_id'),
         })

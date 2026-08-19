@@ -11,6 +11,7 @@ from models import Base
 class ContributionMapper(Base):
     amount: Mapped[float]
     date: Mapped[date]
+    purpose: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     type_id: Mapped[Optional[int]] = mapped_column(ForeignKey("contribution_type.id", ondelete="SET NULL"))
     member_id: Mapped[Optional[int]] = mapped_column(ForeignKey("member.id", ondelete="SET NULL"))
     user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user.id", ondelete="SET NULL"))
@@ -21,9 +22,11 @@ class ContributionMapper(Base):
     user: Mapped["UserMapper"] = relationship(back_populates="contribution", passive_deletes="all")
 
     @classmethod
-    def get_by_year(cls, session: Session, year: str, type_id):
-        contributions = session.scalars(
-            select(cls).where(cls.type_id == type_id, cast(cls.date, String).ilike(f"%{year}%"))).all()
+    def get_by_year(cls, session: Session, year: str, type_id, purpose: Optional[str] = None):
+        query = select(cls).where(cls.type_id == type_id, cast(cls.date, String).ilike(f"%{year}%"))
+        if purpose:
+            query = query.where(cls.purpose == purpose)
+        contributions = session.scalars(query).all()
         monthly_total = defaultdict(int)
         for contribution in contributions:
             month = contribution.date.month
@@ -31,8 +34,8 @@ class ContributionMapper(Base):
         return monthly_total
 
     @classmethod
-    def get_by_user_id(cls, session: Session, member_id: int):
-        return session.scalars(select(cls).where(cls.member_id == member_id)).all()
+    def get_by_type_id(cls, session: Session, type_id: int):
+        return session.scalars(select(cls).where(cls.type_id == type_id)).all()
 
 
 class ContributionTypeMapper(Base):

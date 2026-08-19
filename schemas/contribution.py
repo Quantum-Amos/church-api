@@ -5,6 +5,11 @@ from pydantic import BaseModel
 
 from schemas import MemberSchemaOut, UserSchemaOut
 
+class OfferingTypeSchemaIn(BaseModel):
+    name: str
+
+class OfferingTypeSchemaOut(OfferingTypeSchemaIn):
+    id: int
 
 class ContributionTypeSchemaIn(BaseModel):
     name: str
@@ -21,9 +26,10 @@ class ContributionTypeSchemaOut(ContributionTypeSchemaIn):
 
 class ContributionSchemaIn(BaseModel):
     amount: float
+    purpose: Optional[str] = None
     date: List[date]
     type_id: int
-    member_id: int
+    member_id: Optional[int] = None
 
 
 class ContributionSchemaUpdate(BaseModel):
@@ -40,6 +46,7 @@ class ContributionSchemaOut(BaseModel):
     amount: float
     created_at: datetime
     date: date
+    purpose: Optional[str] = None
     type: ContributionTypeSchemaOut
-    member: MemberSchemaOut
+    member: Optional[MemberSchemaOut] = None
     user: Optional[UserSchemaOut] = None
