@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import date, datetime
 
-from sqlalchemy import ForeignKey, String, cast, select
+from sqlalchemy import ForeignKey, String, cast, extract, select
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 from typing_extensions import Optional
 
@@ -22,20 +22,27 @@ class ContributionMapper(Base):
     user: Mapped["UserMapper"] = relationship(back_populates="contribution", passive_deletes="all")
 
     @classmethod
-    def get_by_year(cls, session: Session, year: str, type_id, purpose: Optional[str] = None):
-        query = select(cls).where(cls.type_id == type_id, cast(cls.date, String).ilike(f"%{year}%"))
+    def get_by_year(cls, session: Session, year: str, type_id, purpose: Optional[str] = None, month: Optional[int] = None):
+        query = select(cls).where(cls.type_id == type_id, cast(cls.created_at, String).ilike(f"%{year}%"))
         if purpose:
             query = query.where(cls.purpose == purpose)
+        if month is not None:
+            query = query.where(extract("month", cls.created_at) == month)
         contributions = session.scalars(query).all()
         monthly_total = defaultdict(int)
         for contribution in contributions:
-            month = contribution.date.month
+            month = contribution.created_at.month
             monthly_total[month] += contribution.amount
         return monthly_total
 
     @classmethod
-    def get_by_type_id(cls, session: Session, type_id: int):
-        return session.scalars(select(cls).where(cls.type_id == type_id)).all()
+    def get_by_type_id(cls, session: Session, type_id: int, year: Optional[int] = None, month: Optional[int] = None):
+        query = select(cls).where(cls.type_id == type_id)
+        if year is not None:
+            query = query.where(extract("year", cls.created_at) == year)
+            if month is not None:
+                query = query.where(extract("month", cls.created_at) == month)
+        return session.scalars(query).all()
 
 
 class ContributionTypeMapper(Base):

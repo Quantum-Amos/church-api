@@ -3,8 +3,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from controllers import (auth_router, contribution_router, department_router,
-                         member_router, user_router, offering_type_router)
+from controllers import (attendance_router, auth_router, contribution_router,
+                         department_router, member_router, offering_type_router,
+                         user_router)
 from core import set_default_data
 
 
@@ -17,6 +18,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(docs_url='/api/docs', redoc_url='/api/redoc', openapi_url='/api/openapi.json', lifespan=lifespan)
 
 app.include_router(auth_router)
+app.include_router(attendance_router)
 app.include_router(member_router)
 app.include_router(user_router)
 app.include_router(contribution_router)

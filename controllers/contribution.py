@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, Security
+from fastapi import APIRouter, Depends, Query, Security
 from sqlalchemy.orm import Session
 
 from core import NotFound, get_db_session
@@ -58,13 +58,24 @@ async def get(id: int, session: Session = Depends(get_db_session)):
 
 
 @contribution_router.get("/type/{type_id}", response_model=List[ContributionSchemaOut], dependencies=[Security(IsAuthenticated())])
-async def get_contribution_by_type(type_id: int, session: Session = Depends(get_db_session)):
-    return ContributionMapper.get_by_type_id(session, type_id)
+async def get_contribution_by_type(
+        type_id: int,
+        year: int = Query(None, ge=1),
+        month: int = Query(None, ge=1, le=12),
+        session: Session = Depends(get_db_session)
+):
+    return ContributionMapper.get_by_type_id(session, type_id, year, month)
 
 
 @contribution_router.get("/reports/{year}", dependencies=[Security(IsAuthenticated())])
-async def get_by_year(year: str, type_id: int, purpose: str = None, session: Session = Depends(get_db_session)):
-    return ContributionMapper.get_by_year(session, year, type_id, purpose)
+async def get_by_year(
+        year: str,
+        type_id: int,
+        purpose: str = None,
+        month: int = Query(None, ge=1, le=12),
+        session: Session = Depends(get_db_session)
+):
+    return ContributionMapper.get_by_year(session, year, type_id, purpose, month)
 
 
 @contribution_router.post("", response_model=ContributionSchemaOut, dependencies=[Security(IsAuthenticated())])

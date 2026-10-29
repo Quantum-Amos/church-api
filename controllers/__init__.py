@@ -1,4 +1,5 @@
 from controllers.auth import auth_router
+from controllers.attendance import attendance_router
 from controllers.contribution import contribution_router
 from controllers.department import department_router
 from controllers.member import member_router
